@@ -1,4 +1,5 @@
 import pyscreenshot as ImageGrab   #LINUX VERSION
+import re
 #import ImageGrab
 import os
 import time
@@ -11,11 +12,12 @@ class image_grabber:
 
 	def imageOpen(self):
 		for a in os.listdir('.'):
-			print("open\t"+str(a)+"?")
-			ans = raw_input("")
-			if ans == "y":
-				self.im = Image.open(a)
-				break
+			if bool(re.search('.png',a,re.IGNORECASE)):
+				print("open\t"+str(a)+"?")
+				ans = raw_input("")
+				if ans == "y":
+					self.im = Image.open(a)
+					break
  
 	def screenGrab(self):
 	    print("waiting...")
