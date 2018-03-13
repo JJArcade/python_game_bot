@@ -1,5 +1,5 @@
-#import pyscreenshot as ImageGrab   #LINUX VERSION
-import ImageGrab
+import pyscreenshot as ImageGrab   #LINUX VERSION
+#import ImageGrab
 import os
 import time
 from datetime import datetime
@@ -8,7 +8,15 @@ from PIL import Image
 class image_grabber:
 	def __init__(self):
 		self.box = (648,363,941,597)
-	    
+
+	def imageOpen(self):
+		for a in os.listdir('.'):
+			print("open\t"+str(a)+"?")
+			ans = raw_input("")
+			if ans == "y":
+				self.im = Image.open(a)
+				break
+ 
 	def screenGrab(self):
 	    print("waiting...")
 	    time.sleep(5)
@@ -37,7 +45,7 @@ class image_grabber:
 						#print(test_pix)    #debug line
 						test_grid = (a,y,a+3,y+3)
 						test_sec = last_shot.crop(test_grid)
-						test_sec.save(os.getcwd()+'\\sections\\test_sec_'+str(a)+str(y)+'.png', 'PNG')
+						#test_sec.save(os.getcwd()+'\\sections\\test_sec_'+str(a)+str(y)+'.png', 'PNG')
 						c=0
 						match = False
 						for b in list(range(0,3)):
@@ -58,7 +66,28 @@ class image_grabber:
 				y+=1
 			return None
 
-
+	def draw_border(self, start_corner):
+		last_shot = self.im
+		width, height = last_shot.size
+		#print(str(width)+'\t'+str(height))  #debug line
+		mark_list=[]
+		x = start_corner[0]
+		y = start_corner[1]
+		#top and bottom border
+		for a in list(range(x,x+11)):
+			mark_list.append((a,y))
+			mark_list.append((a,y+10))
+		#left and right border
+		for a in list(range(y,y+11)):
+			mark_list.append((x,a))
+			mark_list.append((x+10,a))
+		#mark all points
+		for a in mark_list:
+			#print(a)
+			last_shot.putpixel(a,(255,0,0))
+		#last_shot.save(os.getcwd() + '\\bordered_' + str(datetime.now().strftime("%d%m%y_%H%M%S")) + '.png', 'PNG')
+		last_shot.save(os.getcwd() + '/bordered_' + str(datetime.now().strftime("%d%m%y_%H%M%S")) + '.png', 'PNG')	#LINUX VERSION
+		print("BORDER DRAWN AND SAVED.")
 
 '''def screenGrab():
     box = (648,363,941,597)
@@ -72,7 +101,7 @@ class image_grabber:
     #im.save(os.getcwd() + '/full_snap__' + str(int(time.time())) + '.png', 'PNG')   #LINUX VERSION
     return im_name'''
 
-def scan_image(image_name):
+'''def scan_image(image_name):
     last_shot = Image.open(image_name,'r')
     #starting coordinates
     x = 0
@@ -131,13 +160,10 @@ def draw_border(start_corner, image_name):
         #print(a)
         last_shot.putpixel(a,(255,0,0))
     last_shot.save(os.getcwd() + '\\bordered_' + str(int(time.time())) + '.png', 'PNG')
-    print("BORDER DRAWN AND SAVED.")
+    print("BORDER DRAWN AND SAVED.")'''
 
 def main():
-    z = screenGrab()
-    x = scan_image(z)
-    if bool(x):
-        draw_border(x,z)
+	print "HERE WE GO"    
 
 if __name__ == '__main__':
     main()
