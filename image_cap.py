@@ -2,9 +2,65 @@
 import ImageGrab
 import os
 import time
+from datetime import datetime
 from PIL import Image
 
-def screenGrab():
+class image_grabber:
+	def __init__(self):
+		self.box = (648,363,941,597)
+	    
+	def screenGrab(self):
+	    print("waiting...")
+	    time.sleep(5)
+	    self.im = ImageGrab.grab(self.box)
+	    print("image taken")
+	    self.im_name = os.getcwd() + '\\full_snap__' + str(datetime.now().strftime("%d%m%y_%H%M%S")) + '.png'
+		#self.im_name = os.getcwd() + '/full_snap__' + str(datetime.now().strftime("%d%m%y_%H%M%S")) + '.png'	#LINUX VERSION
+	    im.save(im_name, 'PNG')  #WINDOWS VERSION
+	    #im.save(os.getcwd() + '/full_snap__' + str(int(time.time())) + '.png', 'PNG')   #LINUX VERSION
+
+	def scan_image(self, image_name):
+			last_shot = self.im
+			#starting coordinates
+			x = 0
+			y = 0
+			match_found = False
+			while y<=231 and not match_found:
+				for a in list(range(x,290)):
+					#test if beginning corner in range
+					test_pix = last_shot.getpixel((a,y))
+					r_range = range(145,256)
+					g_range = range(145,256)
+					b_range = range(0,100)
+					found = bool((test_pix[0] in r_range) and (test_pix[1] in g_range) and (test_pix[2] in b_range))
+					if found:
+						#print(test_pix)    #debug line
+						test_grid = (a,y,a+3,y+3)
+						test_sec = last_shot.crop(test_grid)
+						test_sec.save(os.getcwd()+'\\sections\\test_sec_'+str(a)+str(y)+'.png', 'PNG')
+						c=0
+						match = False
+						for b in list(range(0,3)):
+							test_pix = test_sec.getpixel((b,c))
+							found = bool((test_pix[0] in r_range) and (test_pix[1] in g_range) and (test_pix[2] in b_range))
+							if not found:
+								match=False
+								break
+							else:
+								c+=1
+								match=True
+						if match:
+							print("MATCH FOUND!")
+							border_corner = (a-4,y-4)
+							#draw_border(border_corner,last_shot)
+							#match_found = True
+							return border_corner
+				y+=1
+			return None
+
+
+
+'''def screenGrab():
     box = (648,363,941,597)
     #box = ()
     print("waiting...")
@@ -14,7 +70,7 @@ def screenGrab():
     im_name = os.getcwd() + '\\full_snap__' + str(int(time.time())) + '.png'
     im.save(im_name, 'PNG')  #WINDOWS VERSION
     #im.save(os.getcwd() + '/full_snap__' + str(int(time.time())) + '.png', 'PNG')   #LINUX VERSION
-    return im_name
+    return im_name'''
 
 def scan_image(image_name):
     last_shot = Image.open(image_name,'r')
