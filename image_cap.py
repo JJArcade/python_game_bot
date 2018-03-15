@@ -1,7 +1,7 @@
-import pyscreenshot as ImageGrab   #LINUX VERSION
+import pyscreenshot as ImageGrab	#LINUX VERSION
 import re
 #import ImageGrab
-import os
+import os, sys
 import time
 from datetime import datetime
 from PIL import Image
@@ -9,6 +9,8 @@ from PIL import Image
 class image_grabber:
 	def __init__(self):
 		self.box = (648,363,941,597)
+		self.positions = []
+		self.init_pos = (0,0)
 
 	def imageOpen(self):
 		for a in os.listdir('.'):
@@ -18,7 +20,7 @@ class image_grabber:
 				if ans == "y":
 					self.im = Image.open(a)
 					break
- 
+
 	def screenGrab(self):
 	    print("waiting...")
 	    time.sleep(5)
@@ -26,10 +28,9 @@ class image_grabber:
 	    print("image taken")
 	    self.im_name = os.getcwd() + '\\full_snap__' + str(datetime.now().strftime("%d%m%y_%H%M%S")) + '.png'
 		#self.im_name = os.getcwd() + '/full_snap__' + str(datetime.now().strftime("%d%m%y_%H%M%S")) + '.png'	#LINUX VERSION
-	    im.save(im_name, 'PNG')  #WINDOWS VERSION
-	    #im.save(os.getcwd() + '/full_snap__' + str(int(time.time())) + '.png', 'PNG')   #LINUX VERSION
+	    im.save(im_name, 'PNG')  #ALL VERSIONS
 
-	def scan_image(self, image_name):
+	def scan_image(self):
 			last_shot = self.im
 			#starting coordinates
 			x = 0
@@ -61,17 +62,15 @@ class image_grabber:
 								match=True
 						if match:
 							print("MATCH FOUND!")
-							border_corner = (a-4,y-4)
-							#draw_border(border_corner,last_shot)
-							#match_found = True
-							return border_corner
+							self.found_pos = (a-4,y-4)
+							return True
 				y+=1
 			return None
 
-	def draw_border(self, start_corner):
+	def draw_border(self):
 		last_shot = self.im
+		start_corner = self.found_pos
 		width, height = last_shot.size
-		#print(str(width)+'\t'+str(height))  #debug line
 		mark_list=[]
 		x = start_corner[0]
 		y = start_corner[1]
@@ -84,88 +83,55 @@ class image_grabber:
 			mark_list.append((x,a))
 			mark_list.append((x+10,a))
 		#mark all points
-		for a in mark_list:
-			#print(a)
+		for a in mark_list:\
 			last_shot.putpixel(a,(255,0,0))
 		#last_shot.save(os.getcwd() + '\\bordered_' + str(datetime.now().strftime("%d%m%y_%H%M%S")) + '.png', 'PNG')
 		last_shot.save(os.getcwd() + '/bordered_' + str(datetime.now().strftime("%d%m%y_%H%M%S")) + '.png', 'PNG')	#LINUX VERSION
 		print("BORDER DRAWN AND SAVED.")
 
-'''def screenGrab():
-    box = (648,363,941,597)
-    #box = ()
-    print("waiting...")
-    time.sleep(5)
-    im = ImageGrab.grab(box)
-    print("image taken")
-    im_name = os.getcwd() + '\\full_snap__' + str(int(time.time())) + '.png'
-    im.save(im_name, 'PNG')  #WINDOWS VERSION
-    #im.save(os.getcwd() + '/full_snap__' + str(int(time.time())) + '.png', 'PNG')   #LINUX VERSION
-    return im_name'''
+	def pos_change(self):
+		pos_info = {"old_pos":(), "new_pos":(), "diff":()}
+		if self.init_pos == (0,0):
+			print("First Position")
+			self.init_pos = self.found_pos
+		pos_info["old_pos"] = self.init_pos
+		pos_info["new_pos"] = self.found_pos
+		delta_pos = (self.init_pos[0]-self.found_pos[0], self.init_pos[1]-self.found_pos[1])
+		pos_info["diff"] = delta_pos
+		out_str = "x change:\t% d\ny change:\t% d" % pos_info["diff"]
+		print(out_str)
+		self.positions.append(pos_info)
 
-'''def scan_image(image_name):
-    last_shot = Image.open(image_name,'r')
-    #starting coordinates
-    x = 0
-    y = 0
-    match_found = False
-    while y<=231 and not match_found:
-        for a in list(range(x,290)):
-            #test if beginning corner in range
-            test_pix = last_shot.getpixel((a,y))
-            r_range = range(145,256)
-            g_range = range(145,256)
-            b_range = range(0,100)
-            found = bool((test_pix[0] in r_range) and (test_pix[1] in g_range) and (test_pix[2] in b_range))
-            if found:
-                #print(test_pix)    #debug line
-                test_grid = (a,y,a+3,y+3)
-                test_sec = last_shot.crop(test_grid)
-                test_sec.save(os.getcwd()+'\\sections\\test_sec_'+str(a)+str(y)+'.png', 'PNG')
-                c=0
-                match = False
-                for b in list(range(0,3)):
-                    test_pix = test_sec.getpixel((b,c))
-                    found = bool((test_pix[0] in r_range) and (test_pix[1] in g_range) and (test_pix[2] in b_range))
-                    if not found:
-                        match=False
-                        break
-                    else:
-                        c+=1
-                        match=True
-                if match:
-                    print("MATCH FOUND!")
-                    border_corner = (a-4,y-4)
-                    #draw_border(border_corner,last_shot)
-                    #match_found = True
-                    return border_corner
-        y+=1
-    return None
+def main_loop():
+	im_main = image_grabber()
+	im_main.screenGrab()
+	if bool(im_main.scan_image()):
+		im_main.draw_border()
 
-def draw_border(start_corner, image_name):
-    last_shot = Image.open(image_name)
-    width, height = last_shot.size
-    #print(str(width)+'\t'+str(height))  #debug line
-    mark_list=[]
-    x = start_corner[0]
-    y = start_corner[1]
-    #top and bottom border
-    for a in list(range(x,x+11)):
-        mark_list.append((a,y))
-        mark_list.append((a,y+10))
-    #left and right border
-    for a in list(range(y,y+11)):
-        mark_list.append((x,a))
-        mark_list.append((x+10,a))
-    #mark all points
-    for a in mark_list:
-        #print(a)
-        last_shot.putpixel(a,(255,0,0))
-    last_shot.save(os.getcwd() + '\\bordered_' + str(int(time.time())) + '.png', 'PNG')
-    print("BORDER DRAWN AND SAVED.")'''
+def debug_loop():
+	im_main = image_grabber()
+	im_main.imageOpen()
+	if bool(im_main.scan_image()):
+		im_main.draw_border()
+
+def continous_loop():
+	while True:
+		im_main = image_grabber()
+		im_main.screenGrab()
+		im_main.pos_change()
+		print('---------------------')
 
 def main():
-	print "HERE WE GO"    
+	print "HERE WE GO"
+	if len(sys.argv)>1:
+		if str(sys.argv[1]) == "--debug":
+			debug_loop()
+		elif str(sys.argv[1]) == "--cont":
+			continous_loop()
+		else:
+			main_loop()
+	else:
+		main_loop()
 
 if __name__ == '__main__':
     main()
