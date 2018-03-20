@@ -1,16 +1,14 @@
 import pyautogui
 import sys, os, time
 
-def find_icon(icon):
-    locs = list(pyautogui.locateAllOnScreen(icon))
-    print(locs)
-    return locs
+class scanner:
+	def __init__(self):
+		icon_list = []
 
-time.sleep(3)
-x = find_icon('.\cotton_t.png')
-print(x[0])
-a = x[0][0]
-b = x[0][1]
-pyautogui.click(a,b)
-
-find_icon('synth.png')
+	def find_icon(self.icon):
+		locs = list(pyautogui.locateAllOnScreen(icon))
+		#print(locs)
+		return locs
+	
+	def read_quantities(self):
+		#placeholder
