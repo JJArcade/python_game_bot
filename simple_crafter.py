@@ -1,7 +1,7 @@
 import pyautogui
 import sys, os, time
 from PIL import Image
-
+from datetime import datetime
 
 def exit_game():
     #escape till system menu
@@ -33,6 +33,8 @@ if len(sys.argv)<=1:
     print("Need a quantity argument.")
     quit()
 
+##get start time
+startTime = datetime.now()
 print("Starting in 5 seconds...")
 time.sleep(1)
 for a in range(1,5):
@@ -45,7 +47,7 @@ pyautogui.press('5')
 pyautogui.keyUp("ctrl")
 time.sleep(.5)
 #find synthesize button
-synth_loc = pyautogui.locateOnScreen(".\\pics\\synth.png")
+synth_loc = pyautogui.locateOnScreen(".\\pics\\synth_2.png", grayscale=True)
 #craft loop
 crafted = 0
 to_craft = int(sys.argv[1])
@@ -62,13 +64,14 @@ while crafted<to_craft:
     done = False
     while not done:
         time.sleep(1)
-        synth_loc = pyautogui.locateOnScreen(".\\pics\\synth.png")
+        synth_loc = pyautogui.locateOnScreen(".\\pics\\synth_2.png", grayscale=True)
         if synth_loc is not None:
             crafted+=1
             print("Crafted\n%s:%s" %(crafted,to_craft))
             done = True
 #end of main_loop
 print("Crafting done.")
+print(datetime.now() - startTime)
 for a in sys.argv:
     if a == "--quit-game":
         exit_game()
