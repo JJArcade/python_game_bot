@@ -1,0 +1,9 @@
+# IGNORE PICS FOLDER
+pics/
+sections/
+
+# IGNORE COMPILED PYTHON
+*.pyc
+
+# IGNORE OUTPUT CSV FILE
+output_.csv
